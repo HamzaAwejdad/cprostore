@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CPro Store - Click & Earn</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Ad SDK -->
+    <script src='//libtl.com/sdk.js' data-zone='10380236' data-sdk='show_10380236'></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="app-title">
+                    <i class="fas fa-store"></i>
+                    <span>CPro Store</span>
+                    <div class="powered-by">
+                        <small>Powered by <a href="https://t.me/GeneratCPro_bot" target="_blank">@GeneratCPro_bot</a></small>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div class="points-header">
+                        <i class="fas fa-coins"></i>
+                        <span id="headerPoints">0</span>
+                        <span class="points-label">POINTS</span>
+                    </div>
+                    <div class="click-limit-indicator" id="clickLimitIndicator" title="Clicks remaining">
+                        <i class="fas fa-mouse-pointer"></i>
+                        <span id="remainingClicks">600</span>/600
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard -->
+            <section id="dashboard" class="page active">
+                <!-- Click Limit Banner -->
+                <div class="click-limit-banner" id="clickLimitBanner">
+                    <div class="limit-info">
+                        <i class="fas fa-clock"></i>
+                        <div class="limit-details">
+                            <span class="limit-title">Click Limit</span>
+                            <span class="limit-subtitle">600 clicks every 3 hours</span>
+                        </div>
+                    </div>
+                    <div class="limit-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="clickProgressFill" style="width: 100%"></div>
+                        </div>
+                        <span class="progress-text" id="clickProgressText">600 clicks remaining</span>
+                    </div>
+                    <div class="limit-timer">
+                        <i class="fas fa-sync-alt"></i>
+                        <span id="limitTimer">Resets in 3:00:00</span>
+                    </div>
+                </div>
+
+                <div class="boosts-section">
+                    <h2 class="section-title">Special Boosts</h2>
+                    <div class="boosts-grid">
+                        <!-- x2 Clicks -->
+                        <div class="boost-card" id="boost2x">
+                            <div class="boost-icon" style="background: linear-gradient(135deg, #4CAF50, #2E7D32);">
+                                <i class="fas fa-bolt"></i>
+                            </div>
+                            <div class="boost-info">
+                                <h3>x2 Clicks</h3>
+                                <p class="boost-desc">Double points per click</p>
+                                <div class="boost-details">
+                                    <span class="duration">2 min</span>
+                                    <span class="cost">2000 POINT</span>
+                                </div>
+                            </div>
+                            <button class="boost-btn" data-boost="2x" id="activate2x">
+                                <span class="btn-text">Activate</span>
+                                <i class="fas fa-rocket"></i>
+                            </button>
+                            <div class="boost-timer hidden" id="timer2x">00:00</div>
+                            <div class="boost-status" id="boost2xStatus"></div>
+                        </div>
+
+                        <!-- Fast Clicks -->
+                        <div class="boost-card" id="boostFast">
+                            <div class="boost-icon" style="background: linear-gradient(135deg, #2196F3, #0D47A1);">
+                                <i class="fas fa-tachometer-alt"></i>
+                            </div>
+                            <div class="boost-info">
+                                <h3>Fast Clicks</h3>
+                                <p class="boost-desc">Auto clicks every 0.5s</p>
+                                <div class="boost-details">
+                                    <span class="duration">2 min</span>
+                                    <span class="cost">2000 POINT</span>
+                                </div>
+                            </div>
+                            <button class="boost-btn" data-boost="fast" id="activateFast">
+                                <span class="btn-text">Activate</span>
+                                <i class="fas fa-bolt"></i>
+                            </button>
+                            <div class="boost-timer hidden" id="timerFast">00:00</div>
+                            <div class="boost-status" id="boostFastStatus"></div>
+                        </div>
+
+                        <!-- Daily Bonus -->
+                        <div class="boost-card" id="dailyBoost">
+                            <div class="boost-icon" style="background: linear-gradient(135deg, #FF9800, #F57C00);">
+                                <i class="fas fa-gift"></i>
+                            </div>
+                            <div class="boost-info">
+                                <h3>Daily Bonus</h3>
+                                <p class="boost-desc">Claim free points daily</p>
+                                <div class="boost-details">
+                                    <span class="duration">24h</span>
+                                    <span class="reward">+50 POINT</span>
+                                </div>
+                            </div>
+                            <button class="boost-btn daily" id="claimDaily">
+                                <span class="btn-text">Claim</span>
+                                <i class="fas fa-gift"></i>
+                            </button>
+                            <div class="boost-timer" id="dailyTimer">Ready!</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Clicker Section -->
+                <div class="clicker-section">
+                    <div class="stats-bar">
+                        <div class="stat">
+                            <span class="stat-label">Today's Clicks</span>
+                            <span class="stat-value" id="todayClicks">0</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">Multiplier</span>
+                            <span class="stat-value" id="multiplier">x1</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">Active Boosts</span>
+                            <span class="stat-value" id="activeBoosts">0</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">Clicks Left</span>
+                            <span class="stat-value click-limit-value" id="clicksLeft">600</span>
+                        </div>
+                    </div>
+
+                    <div class="clicker-container">
+                        <div class="total-points">
+                            <h3>Total Points</h3>
+                            <div class="points-display" id="mainPoints">0</div>
+                        </div>
+
+                        <div class="clicker-area">
+                            <div class="clicker-circle" id="clickerCircle">
+                                <div class="circle-inner">
+                                    <div class="circle-content">
+                                        <i class="fas fa-hand-pointer"></i>
+                                        <span class="click-text">CLICK</span>
+                                        <div class="click-effect" id="clickEffect"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="click-info">
+                                <span id="perClick">+1</span> per click
+                                <span class="click-limit-warning hidden" id="clickLimitWarning">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    Limit reached
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="tips">
+                            <i class="fas fa-lightbulb"></i>
+                            <span>Boosters work even when click limit is reached!</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tasks -->
+            <section id="tasks" class="page">
+                <div class="tasks-header">
+                    <h2 class="section-title">Earn Points</h2>
+                    <p class="section-subtitle">Complete tasks to get more points</p>
+                </div>
+
+                <!-- Watch Ads -->
+                <div class="tasks-category">
+                    <h3 class="category-title">
+                        <i class="fas fa-video"></i>
+                        Watch Ads
+                        <span class="category-badge">2 per day</span>
+                    </h3>
+                    <div class="tasks-grid">
+                        <div class="task-card ad-task">
+                            <div class="task-icon ad">
+                                <i class="fas fa-ad"></i>
+                            </div>
+                            <div class="task-content">
+                                <h4>Watch Ad #1</h4>
+                                <p class="task-desc">Watch a short video</p>
+                                <div class="task-progress">
+                                    <span>Remaining: <span id="adCount1">2</span>/2</span>
+                                </div>
+                            </div>
+                            <button class="task-btn ad-watch" data-ad="1">
+                                <span>+100</span>
+                                <i class="fas fa-play-circle"></i>
+                            </button>
+                        </div>
+
+                        <div class="task-card ad-task">
+                            <div class="task-icon ad">
+                                <i class="fas fa-film"></i>
+                            </div>
+                            <div class="task-content">
+                                <h4>Watch Ad #2</h4>
+                                <p class="task-desc">Watch a short video</p>
+                                <div class="task-progress">
+                                    <span>Remaining: <span id="adCount2">2</span>/2</span>
+                                </div>
+                            </div>
+                            <button class="task-btn ad-watch" data-ad="2">
+                                <span>+100</span>
+                                <i class="fas fa-play-circle"></i>
+                            </button>
+                        </div>
+
+                        <div class="task-card ad-task">
+                            <div class="task-icon ad">
+                                <i class="fas fa-tv"></i>
+                            </div>
+                            <div class="task-content">
+                                <h4>Watch Ad #3</h4>
+                                <p class="task-desc">Watch a short video</p>
+                                <div class="task-progress">
+                                    <span>Remaining: <span id="adCount3">2</span>/2</span>
+                                </div>
+                            </div>
+                            <button class="task-btn ad-watch" data-ad="3">
+                                <span>+100</span>
+                                <i class="fas fa-play-circle"></i>
+                            </button>
+                        </div>
+
+                        <div class="task-card ad-task">
+                            <div class="task-icon ad">
+                                <i class="fas fa-video"></i>
+                            </div>
+                            <div class="task-content">
+                                <h4>Watch Ad #4</h4>
+                                <p class="task-desc">Watch a short video</p>
+                                <div class="task-progress">
+                                    <span>Remaining: <span id="adCount4">2</span>/2</span>
+                                </div>
+                            </div>
+                            <button class="task-btn ad-watch" data-ad="4">
+                                <span>+100</span>
+                                <i class="fas fa-play-circle"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Telegram Tasks -->
+                <div class="tasks-category">
+                    <h3 class="category-title">
+                        <i class="fab fa-telegram"></i>
+                        Join Telegram
+                        <span class="category-badge">One-time</span>
+                    </h3>
+                    <div class="tasks-list">
+                        <div class="task-card channel-task" id="channel1">
+                            <div class="task-icon telegram">
+                                <i class="fab fa-telegram"></i>
+                            </div>
+                            <div class="task-content">
+                                <h4>Join Channel #1</h4>
+                                <p class="task-desc">GeneratCPro BOT News</p>
+                                <a href="https://t.me/+-ALd_P5x4dw4MmNk" target="_blank" class="channel-link">
+                                    t.me/+-ALd_P5x4dw4MmNk
+                                </a>
+                            </div>
+                            <button class="task-btn channel-join" data-channel="1">
+                                <span>+250</span>
+                                <i class="fas fa-external-link-alt"></i>
+                            </button>
+                        </div>
+
+                        <div class="task-card channel-task" id="channel2">
+                            <div class="task-icon telegram">
+                                <i class="fab fa-telegram"></i>
+                            </div>
+                            <div class="task-content">
+                                <h4>Join Channel #2</h4>
+                                <p class="task-desc">Canva Pro Team Link</p>
+                                <a href="https://t.me/directcanvapro" target="_blank" class="channel-link">
+                                    t.me/directcanvapro
+                                </a>
+                            </div>
+                            <button class="task-btn channel-join" data-channel="2">
+                                <span>+250</span>
+                                <i class="fas fa-external-link-alt"></i>
+                            </button>
+                        </div>
+
+                        <div class="task-card channel-task" id="channel3">
+                            <div class="task-icon telegram">
+                                <i class="fab fa-telegram"></i>
+                            </div>
+                            <div class="task-content">
+                                <h4>Join Bot #3</h4>
+                                <p class="task-desc">Canva Pro Generator</p>
+                                <a href="https://t.me/GeneratCPro_bot" target="_blank" class="channel-link">
+                                    t.me/GeneratCPro_bot
+                                </a>
+                            </div>
+                            <button class="task-btn channel-join" data-channel="3">
+                                <span>+250</span>
+                                <i class="fas fa-external-link-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tasks-footer">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Tasks reset daily at 00:00 UTC. Complete them to earn more!</span>
+                </div>
+            </section>
+
+            <!-- Withdraw -->
+            <section id="withdraw" class="page">
+                <div class="withdraw-header">
+                    <h2 class="section-title">Withdraw Rewards</h2>
+                    <p class="section-subtitle">Convert your points to real rewards</p>
+                </div>
+
+                <!-- Requirements -->
+                <div class="requirements-card">
+                    <h3><i class="fas fa-clipboard-check"></i> Requirements</h3>
+                    <div class="requirements-list">
+                        <div class="requirement-item">
+                            <i class="fas fa-coins"></i>
+                            <div class="req-info">
+                                <span class="req-label">Minimum Points</span>
+                                <span class="req-status" id="reqPoints">0 / 4500</span>
+                            </div>
+                        </div>
+                        <div class="requirement-item">
+                            <i class="fas fa-users"></i>
+                            <div class="req-info">
+                                <span class="req-label">Referrals Needed</span>
+                                <span class="req-status" id="reqReferrals">0 / 10</span>
+                            </div>
+                        </div>
+                        <div class="requirement-item">
+                            <i class="fas fa-calendar-alt"></i>
+                            <div class="req-info">
+                                <span class="req-label">Account Age</span>
+                                <span class="req-status" id="reqAge">0 days</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="requirements-status">
+                        <div class="status-bar">
+                            <div class="status-fill" id="statusFill"></div>
+                        </div>
+                        <span class="status-text" id="statusText">Complete requirements to withdraw</span>
+                    </div>
+                </div>
+
+                <!-- Rewards Grid -->
+                <div class="rewards-section">
+                    <h3 class="section-title">Available Rewards</h3>
+                    <div class="rewards-grid">
+                        <!-- Canva Pro (Link) -->
+                        <div class="reward-card">
+                            <div class="reward-icon">
+                                <i class="fas fa-link"></i>
+                            </div>
+                            <div class="reward-info">
+                                <h4>Canva Pro (Link)</h4>
+                                <p class="reward-cost">4500 POINT</p>
+                            </div>
+                            <button class="reward-btn" data-reward="canva-link" data-cost="4500">
+                                Withdraw
+                            </button>
+                        </div>
+
+                        <!-- Canva Pro (Email) -->
+                        <div class="reward-card">
+                            <div class="reward-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="reward-info">
+                                <h4>Canva Pro (Email)</h4>
+                                <p class="reward-cost">6000 POINT</p>
+                            </div>
+                            <button class="reward-btn" data-reward="canva-email" data-cost="6000">
+                                Withdraw
+                            </button>
+                        </div>
+
+                        <!-- 1 USDT -->
+                        <div class="reward-card">
+                            <div class="reward-icon">
+                                <i class="fas fa-coins"></i>
+                            </div>
+                            <div class="reward-info">
+                                <h4>1 USDT</h4>
+                                <p class="reward-cost">7500 POINT</p>
+                            </div>
+                            <button class="reward-btn" data-reward="1usdt" data-cost="7500">
+                                Withdraw
+                            </button>
+                        </div>
+
+                        <!-- 5 USDT -->
+                        <div class="reward-card">
+                            <div class="reward-icon">
+                                <i class="fas fa-wallet"></i>
+                            </div>
+                            <div class="reward-info">
+                                <h4>5 USDT</h4>
+                                <p class="reward-cost">15000 POINT</p>
+                            </div>
+                            <button class="reward-btn" data-reward="5usdt" data-cost="15000">
+                                Withdraw
+                            </button>
+                        </div>
+
+                        <!-- 10 USDT -->
+                        <div class="reward-card">
+                            <div class="reward-icon">
+                                <i class="fas fa-money-bill-wave"></i>
+                            </div>
+                            <div class="reward-info">
+                                <h4>10 USDT</h4>
+                                <p class="reward-cost">30000 POINT</p>
+                            </div>
+                            <button class="reward-btn" data-reward="10usdt" data-cost="30000">
+                                Withdraw
+                            </button>
+                        </div>
+
+                        <!-- 20 USDT -->
+                        <div class="reward-card">
+                            <div class="reward-icon">
+                                <i class="fas fa-gem"></i>
+                            </div>
+                            <div class="reward-info">
+                                <h4>20 USDT</h4>
+                                <p class="reward-cost">50000 POINT</p>
+                            </div>
+                            <button class="reward-btn" data-reward="20usdt" data-cost="50000">
+                                Withdraw
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- How to Withdraw -->
+                <div class="withdraw-guide">
+                    <h3><i class="fas fa-question-circle"></i> How to Withdraw</h3>
+                    <ol class="guide-steps">
+                        <li>Click "Withdraw" on your chosen reward</li>
+                        <li>Copy the generated withdrawal code</li>
+                        <li>Send the code to our support team</li>
+                        <li>Receive your reward within 24-48 hours</li>
+                    </ol>
+                </div>
+            </section>
+
+            <!-- Referral -->
+            <section id="referral" class="page">
+                <div class="referral-header">
+                    <h2 class="section-title">Referral Program</h2>
+                    <p class="section-subtitle">Invite friends and earn together</p>
+                </div>
+
+                <!-- Stats -->
+                <div class="referral-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-label">Total Referrals</span>
+                            <span class="stat-value" id="totalReferrals">0</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-coins"></i>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-label">Points Earned</span>
+                            <span class="stat-value" id="referralPoints">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Referral Link -->
+                <div class="referral-link-card">
+                    <h3><i class="fas fa-share-alt"></i> Your Referral Link</h3>
+                    <div class="link-container">
+                        <input type="text" id="referralLinkInput" readonly 
+                               value="https://t.me/CProStorebot?startapp=user123">
+                        <button class="copy-btn" id="copyReferralLink">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                    <p class="link-note">
+                        <i class="fas fa-info-circle"></i>
+                        Earn 10% of your referrals' points!
+                    </p>
+                </div>
+
+                <!-- Recent Referrals -->
+                <div class="referral-history">
+                    <h3><i class="fas fa-history"></i> Recent Referrals</h3>
+                    <div class="history-table">
+                        <div class="table-header">
+                            <span>Username</span>
+                            <span>Date</span>
+                            <span>Points</span>
+                        </div>
+                        <div class="table-body" id="referralsTable">
+                            <div class="empty-state">
+                                <i class="fas fa-user-plus"></i>
+                                <p>No referrals yet. Share your link!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Settings -->
+            <section id="settings" class="page">
+                <div class="settings-header">
+                    <h2 class="section-title">Settings</h2>
+                    <p class="section-subtitle">Manage your account</p>
+                </div>
+
+                <!-- Account Settings -->
+                <div class="settings-section">
+                    <h3><i class="fas fa-user-cog"></i> Account</h3>
+                    <div class="settings-list">
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h4>Username</h4>
+                                <p id="currentUsername">user123</p>
+                                <small id="usernameChangeCost">First change is free</small>
+                            </div>
+                            <button class="setting-action" id="changeUsernameBtn">
+                                Change
+                            </button>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h4>Account Created</h4>
+                                <p id="accountCreatedDate">Just now</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Support -->
+                <div class="settings-section">
+                    <h3><i class="fas fa-headset"></i> Support</h3>
+                    <div class="settings-list">
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h4>Email Support</h4>
+                                <p>accnet1.master@gmail.com</p>
+                            </div>
+                            <a href="mailto:accnet1.master@gmail.com" class="setting-action">
+                                <i class="fas fa-envelope"></i>
+                            </a>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h4>Telegram Support</h4>
+                                <p>@CProSupports</p>
+                            </div>
+                            <a href="https://t.me/CProSupports" target="_blank" class="setting-action">
+                                <i class="fab fa-telegram"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Legal -->
+                <div class="settings-section">
+                    <h3><i class="fas fa-gavel"></i> Legal</h3>
+                    <div class="settings-list">
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h4>Privacy Policy</h4>
+                                <p>How we handle your data</p>
+                            </div>
+                            <button class="setting-action" data-legal="privacy">
+                                View
+                            </button>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h4>Terms of Use</h4>
+                                <p>Rules and guidelines</p>
+                            </div>
+                            <button class="setting-action" data-legal="terms">
+                                View
+                            </button>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h4>Disclaimer</h4>
+                                <p>Important information</p>
+                            </div>
+                            <button class="setting-action" data-legal="disclaimer">
+                                View
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- About -->
+                <div class="settings-section">
+                    <h3><i class="fas fa-info-circle"></i> About CPro Store</h3>
+                    <div class="about-content">
+                        <p>CPro Store is a Telegram Mini App that rewards users for their engagement. Our mission is to provide a fun and fair platform for earning rewards through simple tasks.</p>
+                        <p>All rewards are manually verified and delivered by our support team. We prioritize transparency and user satisfaction in all interactions.</p>
+                        <p class="version">Version 1.0.0</p>
+                    </div>
+                </div>
+
+                <!-- Danger Zone -->
+                <div class="settings-section danger">
+                    <h3><i class="fas fa-exclamation-triangle"></i> Danger Zone</h3>
+                    <div class="danger-content">
+                        <button class="danger-btn" id="resetDataBtn">
+                            <i class="fas fa-trash-alt"></i>
+                            Reset All Data
+                        </button>
+                        <p class="warning">This will delete all your progress permanently!</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <a href="#" class="nav-item active" data-page="dashboard">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="#" class="nav-item" data-page="tasks">
+                <i class="fas fa-tasks"></i>
+                <span>Tasks</span>
+            </a>
+            <a href="#" class="nav-item" data-page="withdraw">
+                <i class="fas fa-wallet"></i>
+                <span>Withdraw</span>
+            </a>
+            <a href="#" class="nav-item" data-page="referral">
+                <i class="fas fa-user-friends"></i>
+                <span>Referral</span>
+            </a>
+            <a href="#" class="nav-item" data-page="settings">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+        </nav>
+
+        <!-- Modals -->
+        <div class="modal-overlay" id="modalOverlay"></div>
+
+        <!-- Username Change Modal -->
+        <div class="modal" id="usernameModal">
+            <div class="modal-header">
+                <h3>Change Username</h3>
+                <button class="modal-close" id="closeUsernameModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="newUsername">New Username</label>
+                    <input type="text" id="newUsername" placeholder="Enter new username" maxlength="32">
+                </div>
+                <div class="cost-notice" id="costNotice">
+                    <i class="fas fa-info-circle"></i>
+                    <span>First username change is free. Subsequent changes cost 3500 POINT.</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelUsername">Cancel</button>
+                <button class="btn btn-primary" id="saveUsername">Save</button>
+            </div>
+        </div>
+
+        <!-- Withdraw Modal -->
+        <div class="modal" id="withdrawModal">
+            <div class="modal-header">
+                <h3>Confirm Withdrawal</h3>
+                <button class="modal-close" id="closeWithdrawModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="withdraw-details">
+                    <div class="reward-preview">
+                        <i class="fas fa-gift"></i>
+                        <div>
+                            <h4 id="withdrawRewardName">Canva Pro (Link)</h4>
+                            <p class="reward-cost-modal" id="withdrawCost">4500 POINT</p>
+                        </div>
+                    </div>
+                    
+                    <div class="requirements-check">
+                        <h4>Requirements Check</h4>
+                        <div class="check-list">
+                            <div class="check-item" id="checkPoints">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Minimum Points</span>
+                            </div>
+                            <div class="check-item" id="checkReferrals">
+                                <i class="fas fa-times-circle"></i>
+                                <span>10 Referrals</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="withdraw-code" id="codeSection">
+                        <h4>Your Withdrawal Code</h4>
+                        <div class="code-container">
+                            <code id="withdrawCode">CPRO-XXXX-XXXX-XXXX</code>
+                            <button class="copy-code-btn" id="copyWithdrawCode">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                        <p class="code-instruction">
+                            <i class="fas fa-info-circle"></i>
+                            Send this code to our support team to receive your reward.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelWithdraw">Cancel</button>
+                <button class="btn btn-primary" id="confirmWithdraw">Generate Code</button>
+            </div>
+        </div>
+
+        <!-- Legal Modals -->
+        <div class="modal legal-modal" id="privacyModal">
+            <div class="modal-header">
+                <h3>Privacy Policy</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="legal-content">
+                    <h4>1. Data Collection</h4>
+                    <p>We collect only necessary data for app functionality: points, tasks completed, and basic user information provided via Telegram.</p>
+                    
+                    <h4>2. Data Usage</h4>
+                    <p>Your data is used solely for app functionality and reward processing. We never sell or share your data with third parties.</p>
+                    
+                    <h4>3. Data Storage</h4>
+                    <p>All data is stored locally on your device. For withdrawal processing, we temporarily store your withdrawal code.</p>
+                    
+                    <h4>4. Contact</h4>
+                    <p>For privacy concerns, contact: accnet1.master@gmail.com</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal legal-modal" id="termsModal">
+            <div class="modal-header">
+                <h3>Terms of Use</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="legal-content">
+                    <h4>1. Acceptance</h4>
+                    <p>By using CPro Store, you agree to these terms.</p>
+                    
+                    <h4>2. Eligibility</h4>
+                    <p>You must be at least 13 years old to use this app.</p>
+                    
+                    <h4>3. User Conduct</h4>
+                    <p>No cheating, bot usage, or fraudulent activity allowed.</p>
+                    
+                    <h4>4. Rewards</h4>
+                    <p>All rewards are subject to verification. We reserve the right to deny rewards for suspicious activity.</p>
+                    
+                    <h4>5. Changes</h4>
+                    <p>We may update these terms at any time. Continued use constitutes acceptance.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal legal-modal" id="disclaimerModal">
+            <div class="modal-header">
+                <h3>Disclaimer</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="legal-content">
+                    <h4>Important Information</h4>
+                    <p>CPro Store is an entertainment application. While we offer rewards, there is no guarantee of earnings.</p>
+                    
+                    <h4>No Financial Advice</h4>
+                    <p>This app does not provide financial advice. All rewards are for entertainment purposes.</p>
+                    
+                    <h4>Third-Party Content</h4>
+                    <p>We are not responsible for third-party websites or services linked in the app.</p>
+                    
+                    <h4>Limitation of Liability</h4>
+                    <p>We are not liable for any losses resulting from app usage or inability to access rewards.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notification Toast -->
+        <div class="toast" id="toast">
+            <div class="toast-content">
+                <i class="fas fa-check-circle"></i>
+                <span id="toastMessage">Action completed successfully!</span>
+            </div>
+        </div>
+
+        <!-- Floating Points Container -->
+        <div id="floatingContainer"></div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
